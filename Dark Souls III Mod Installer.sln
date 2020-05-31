@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29911.84
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dark Souls III Mod Installer", "Dark Souls III Mod Installer\Dark Souls III Mod Installer.csproj", "{DC512321-2B0D-49AB-B8AA-70EA0ED3E301}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DC512321-2B0D-49AB-B8AA-70EA0ED3E301}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DC512321-2B0D-49AB-B8AA-70EA0ED3E301}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DC512321-2B0D-49AB-B8AA-70EA0ED3E301}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DC512321-2B0D-49AB-B8AA-70EA0ED3E301}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {47EE1580-EFD5-4790-B916-8316DB831B89}
+	EndGlobalSection
+EndGlobal
