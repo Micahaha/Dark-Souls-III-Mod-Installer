@@ -20,7 +20,9 @@ namespace Dark_Souls_III_Mod_Installer
 {
 	public partial class Form1 : Form
 	{
-
+		string folderPath = "";
+		OpenFileDialog fbd = new OpenFileDialog();
+		string parentDirectory = "";
 		public string fileBox
 		{
 
@@ -29,7 +31,6 @@ namespace Dark_Souls_III_Mod_Installer
 
 		}
 		public string coughtPath;
-
 
 
 
@@ -52,8 +53,7 @@ namespace Dark_Souls_III_Mod_Installer
 		{
 			InitializeComponent();
 			MessageBox.Show("Thanks for installing, This is my first C# Project so please leave some constructive criticism!");
-			
-
+			checkBox1.Enabled = false;
 		}
 
 		private void label1_Click(object sender, EventArgs e)
@@ -68,11 +68,6 @@ namespace Dark_Souls_III_Mod_Installer
 
 		private void selPath_Click(object sender, EventArgs e)
 		{
-			
-			string folderPath = "";
-			OpenFileDialog fbd = new OpenFileDialog();
-			string parentDirectory = "";
-			string errorMessage = "Wrong Directory";
 			try
 			{
 				if (fbd.ShowDialog() == DialogResult.OK)
@@ -86,35 +81,30 @@ namespace Dark_Souls_III_Mod_Installer
 						MessageBox.Show("DARK SOULS 3 DIRECTORY SELECTED!");
 						btnInstall.Enabled = true;
 						fileBox = parentDirectory;
-						
+						checkBox1.Enabled = true;
+
 					}
 					else
 					{
 						fileBox = null;
-						MessageBox.Show("Dark Souls 3 Directory was not selected!");
 						btnInstall.Enabled = false;
 					}
 				}
-				else
-				{
-					MessageBox.Show("Nothing was selected");
-				}
-
-			}
-
-			catch (Exception fuckedUp)
-			{
-				errorMessage = fuckedUp.Message;
-			}
-			if (fileBox.Contains("Game")) 
-			{
 				string modEngine = Path.Combine(parentDirectory + @"\modengine.ini");
 				var parser = new FileIniDataParser();
 				IniData data = parser.ReadFile(modEngine);
-				var directValue = data["files"]["modOverrideDirectory"] = @"""\mod""";
-				parser.WriteFile(modEngine, data);
-			}
+				var directValue = data["files"]["modOverrideDirectory"];
 
+				if (!directValue.Contains(@"""\mod"""))
+				{
+					directValue = data["files"]["modOverrideDirectory"] = @"""\mod""";
+					parser.WriteFile(modEngine, data);
+				}
+			}
+			catch (Exception threwException) 
+			{
+				MessageBox.Show("Nothing was selected. Please choose your DarkSouls3.exe");
+			}
 		}
 
 		private void btnInstall_Click(object sender, EventArgs e)
@@ -147,6 +137,27 @@ namespace Dark_Souls_III_Mod_Installer
 				}
 
 
+			}
+		}
+
+		public void checkBox1_CheckedChanged(object sender, EventArgs e)
+		{
+			if (fileBox.Contains("Game"))
+			{
+				string modEngine = Path.Combine(parentDirectory + @"\modengine.ini");
+				var parser = new FileIniDataParser();
+				IniData data = parser.ReadFile(modEngine);
+				var directValue = data["files"]["useModOverrideDirectory"];
+				if (checkBox1.Checked)
+				{
+					directValue = data["files"]["useModOverrideDirectory"] = "0";
+					parser.WriteFile(modEngine, data);
+				}
+				else
+				{
+					directValue = data["files"]["useModOverrideDirectory"] = "1";
+					parser.WriteFile(modEngine, data);
+				}
 			}
 		}
 	}
