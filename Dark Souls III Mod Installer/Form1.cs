@@ -53,7 +53,15 @@ namespace Dark_Souls_III_Mod_Installer
 		{
 			InitializeComponent();
 			MessageBox.Show("Thanks for installing, This is my first C# Project so please leave some constructive criticism!");
-			checkBox1.Enabled = false;
+			readDirectory();
+			checkBox1.Enabled = false; 
+			if (fileBox.Contains("Game"))
+			{
+				enOnlinebtn.Enabled = true;
+				btnInstall.Enabled = true;
+				checkBox1.Enabled = true;
+				readUserSettings(enOnlinebtn);
+			}
 		}
 
 		private void label1_Click(object sender, EventArgs e)
@@ -70,19 +78,20 @@ namespace Dark_Souls_III_Mod_Installer
 		{
 			try
 			{
+				
 				if (fbd.ShowDialog() == DialogResult.OK)
 				{
 
 					folderPath = fbd.FileName;
 					parentDirectory = Directory.GetParent(folderPath).FullName;
-
 					if (folderPath.Contains("DarkSoulsIII.exe"))
 					{
 						MessageBox.Show("DARK SOULS 3 DIRECTORY SELECTED!");
 						btnInstall.Enabled = true;
 						fileBox = parentDirectory;
 						checkBox1.Enabled = true;
-
+						readUserSettings(enOnlinebtn);
+						savedDirectory(folderPath);
 					}
 					else
 					{
@@ -90,7 +99,7 @@ namespace Dark_Souls_III_Mod_Installer
 						btnInstall.Enabled = false;
 					}
 				}
-				string modEngine = Path.Combine(parentDirectory + @"\modengine.ini");
+				string modEngine = Path.Combine(fileBox + @"\modengine.ini");
 				var parser = new FileIniDataParser();
 				IniData data = parser.ReadFile(modEngine);
 				var directValue = data["files"]["modOverrideDirectory"];
@@ -101,12 +110,12 @@ namespace Dark_Souls_III_Mod_Installer
 					parser.WriteFile(modEngine, data);
 				}
 			}
-			catch (Exception threwException) 
+			catch (Exception)
 			{
 				MessageBox.Show("Nothing was selected. Please choose your DarkSouls3.exe");
 			}
 		}
-
+	
 		private void btnInstall_Click(object sender, EventArgs e)
 		{
 	
@@ -142,11 +151,12 @@ namespace Dark_Souls_III_Mod_Installer
 
 		public void checkBox1_CheckedChanged(object sender, EventArgs e)
 		{
+			string modEngine = Path.Combine(fileBox + @"\modengine.ini");
+			var parser = new FileIniDataParser();
+			IniData data = parser.ReadFile(modEngine);
 			if (fileBox.Contains("Game"))
 			{
-				string modEngine = Path.Combine(parentDirectory + @"\modengine.ini");
-				var parser = new FileIniDataParser();
-				IniData data = parser.ReadFile(modEngine);
+				
 				var directValue = data["files"]["useModOverrideDirectory"];
 				if (checkBox1.Checked)
 				{
@@ -158,6 +168,116 @@ namespace Dark_Souls_III_Mod_Installer
 					directValue = data["files"]["useModOverrideDirectory"] = "1";
 					parser.WriteFile(modEngine, data);
 				}
+			}
+		}
+	
+		private void EnOnlineBtn_CheckedChanged(object sender, EventArgs e)
+		{
+			
+			string modEngine = Path.Combine(fileBox + @"\modengine.ini");
+			var parser = new FileIniDataParser();
+			IniData data = parser.ReadFile(modEngine);
+			
+			if (fileBox.Contains("Game"))
+			{
+				var directValue = data["online"]["blockNetworkAccess"];
+				if (checkBox1.Checked)
+				{
+					directValue = "0";
+					parser.WriteFile(modEngine, data);
+				}
+				else
+				{
+					directValue = "1";
+					parser.WriteFile(modEngine, data);
+				}
+			}
+		}
+
+		private void altSaveBtn_CheckedChanged(object sender, EventArgs e)
+		{
+
+			string modEngine = Path.Combine(fileBox + @"\modengine.ini");
+			var parser = new FileIniDataParser();
+			IniData data = parser.ReadFile(modEngine);
+			if (fileBox.Contains("Game"))
+			{
+				var directValue = data["savefile"]["useAlternateSaveFile"];
+				if (checkBox1.Checked)
+				{
+					directValue = "1";
+					parser.WriteFile(modEngine, data);
+				}
+				else
+				{
+					directValue = "0";
+					parser.WriteFile(modEngine, data);
+				}
+			}
+		}
+
+		public string path = Path.GetDirectoryName(Application.ExecutablePath) + @"\userSettings.ini";
+		public void SaveUserSettings(CheckBox checker)
+		{
+			
+			if (!File.Exists(path))
+			{
+				File.Create(path);
+			}
+			var parser = new FileIniDataParser();
+			IniData data = parser.ReadFile(path);
+			if (checker.Checked)
+			{
+				var directValue = data["CheckSaveState"]["checked"] = "1";
+				parser.WriteFile(path, data);
+			}
+			else 
+			{
+				var directValue = data["CheckSaveState"]["checked"] = "0";
+				parser.WriteFile(path, data);
+			}
+		}
+
+		public void readUserSettings(CheckBox check) 
+		{
+			var parser = new FileIniDataParser();
+			IniData data = parser.ReadFile(path);
+			var directValue = data["CheckSaveState"]["checked"];
+			int trueValue = Convert.ToInt32(directValue);
+			// contains "1" or "0"
+			if (trueValue == 1)
+			{
+				check.Checked = true;
+			}
+			else
+			{
+				check.Checked = false;
+			}
+		}
+
+		private void savebtn_Click(object sender, EventArgs e)
+		{
+			SaveUserSettings(enOnlinebtn);
+			MessageBox.Show("Options saved");
+		}
+		public void savedDirectory(string filePath) 
+		{
+			DirectoryInfo parent = Directory.GetParent(filePath);
+			string parentDir = Convert.ToString(parent);
+			var parser = new FileIniDataParser();
+			IniData data = parser.ReadFile(path);
+			var directValue = data["files"]["DS3Dir"] = parentDir;
+			parser.WriteFile(path, data);
+
+		}
+		public void readDirectory() 
+		{
+			var parser = new FileIniDataParser();
+			IniData data = parser.ReadFile(path);
+			var directValue = data["files"]["DS3Dir"];
+			if (!fileBox.Contains("Game"))  
+			{
+				fileBox += directValue;
 			}
 		}
 	}
