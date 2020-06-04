@@ -31,7 +31,7 @@ namespace Dark_Souls_III_Mod_Installer
 
 		}
 		public string coughtPath;
-
+		public string path = Path.GetDirectoryName(Application.ExecutablePath) + @"\userSettings.ini";
 
 
 		public void openFolderDialog()
@@ -53,6 +53,12 @@ namespace Dark_Souls_III_Mod_Installer
 		{
 			InitializeComponent();
 			MessageBox.Show("Thanks for installing, This is my first C# Project so please leave some constructive criticism!");
+			if (!File.Exists(path))
+			{
+				using (var myFile = File.Create(path));
+			}
+		
+	
 			readDirectory();
 			checkBox1.Enabled = false; 
 			if (fileBox.Contains("Game"))
@@ -61,6 +67,8 @@ namespace Dark_Souls_III_Mod_Installer
 				btnInstall.Enabled = true;
 				checkBox1.Enabled = true;
 				readUserSettings(enOnlinebtn);
+				readUserSettingsaltBtn(altSaveBtn);
+				readUserSettingsDisableBtn(checkBox1);
 			}
 		}
 
@@ -91,6 +99,8 @@ namespace Dark_Souls_III_Mod_Installer
 						fileBox = parentDirectory;
 						checkBox1.Enabled = true;
 						readUserSettings(enOnlinebtn);
+						readUserSettingsaltBtn(altSaveBtn);
+						readUserSettingsDisableBtn(checkBox1);
 						savedDirectory(folderPath);
 					}
 					else
@@ -115,40 +125,45 @@ namespace Dark_Souls_III_Mod_Installer
 				MessageBox.Show("Nothing was selected. Please choose your DarkSouls3.exe");
 			}
 		}
-	
+
 		private void btnInstall_Click(object sender, EventArgs e)
 		{
-	
+			try {
 
-			string[] paths = { fileBox, "mod" };
-		
-			using (OpenFileDialog fbd2 = new OpenFileDialog())
-			{
 
-				fbd2.InitialDirectory = "C:\\";
-				fbd2.Filter = "Archive Files (*.zip)|*.zip|All files (*.*)|*.*";
+				string[] paths = { fileBox, "mod" };
 
-				if (fbd2.ShowDialog() == DialogResult.OK)
+				using (OpenFileDialog fbd2 = new OpenFileDialog())
 				{
-					
-					coughtPath = fbd2.FileName;
-					string modDirectory = Path.Combine(paths);
-					if (!Directory.Exists(modDirectory))
+
+					fbd2.InitialDirectory = "C:\\";
+					fbd2.Filter = "Archive Files (*.zip)|*.zip|All files (*.*)|*.*";
+
+					if (fbd2.ShowDialog() == DialogResult.OK)
 					{
-						DirectoryInfo createMod = Directory.CreateDirectory(modDirectory);
+
+						coughtPath = fbd2.FileName;
+						string modDirectory = Path.Combine(paths);
+						if (!Directory.Exists(modDirectory))
+						{
+							DirectoryInfo createMod = Directory.CreateDirectory(modDirectory);
+						}
+						else
+						{
+							ZipFile.ExtractToDirectory(coughtPath, modDirectory);
+							MessageBox.Show("Mod installed!");
+						}
+
 					}
-					else
-					{
-						ZipFile.ExtractToDirectory(coughtPath,modDirectory);
-						MessageBox.Show("Mod installed!");
-					}
+
 
 				}
-
-
+			}
+			catch(IOException eee) 
+			{
+				MessageBox.Show("File Already exists in that Location");
 			}
 		}
-
 		public void checkBox1_CheckedChanged(object sender, EventArgs e)
 		{
 			string modEngine = Path.Combine(fileBox + @"\modengine.ini");
@@ -216,14 +231,10 @@ namespace Dark_Souls_III_Mod_Installer
 			}
 		}
 
-		public string path = Path.GetDirectoryName(Application.ExecutablePath) + @"\userSettings.ini";
+		
 		public void SaveUserSettings(CheckBox checker)
 		{
 			
-			if (!File.Exists(path))
-			{
-				File.Create(path);
-			}
 			var parser = new FileIniDataParser();
 			IniData data = parser.ReadFile(path);
 			if (checker.Checked)
@@ -257,6 +268,8 @@ namespace Dark_Souls_III_Mod_Installer
 
 		private void savebtn_Click(object sender, EventArgs e)
 		{
+			SaveUserSettingsaltbtn(altSaveBtn);
+			SaveUserSettingsDisablebtn(checkBox1);
 			SaveUserSettings(enOnlinebtn);
 			MessageBox.Show("Options saved");
 		}
@@ -279,6 +292,86 @@ namespace Dark_Souls_III_Mod_Installer
 			{
 				fileBox += directValue;
 			}
+		}
+	
+		public void SaveUserSettingsDisablebtn(CheckBox checker)
+		{
+
+			if (!File.Exists(path))
+			{
+				File.Create(path);
+			}
+			var parser = new FileIniDataParser();
+			IniData data = parser.ReadFile(path);
+			if (checker.Checked)
+			{
+				var directValue = data["CheckSaveState"]["disablemods"] = "1";
+				parser.WriteFile(path, data);
+			}
+			else
+			{
+				var directValue = data["CheckSaveState"]["disablemods"] = "0";
+				parser.WriteFile(path, data);
+			}
+		}
+
+		public void readUserSettingsDisableBtn(CheckBox check)
+		{
+			var parser = new FileIniDataParser();
+			IniData data = parser.ReadFile(path);
+			var directValue = data["CheckSaveState"]["disablemods"];
+			int trueValue = Convert.ToInt32(directValue);
+			// contains "1" or "0"
+			if (trueValue == 1)
+			{
+				check.Checked = true;
+			}
+			else
+			{
+				check.Checked = false;
+			}
+		}
+		public void SaveUserSettingsaltbtn(CheckBox checker)
+		{
+
+			if (!File.Exists(path))
+			{
+				File.Create(path);
+			}
+			var parser = new FileIniDataParser();
+			IniData data = parser.ReadFile(path);
+			if (checker.Checked)
+			{
+				var directValue = data["CheckSaveState"]["altbtn"] = "1";
+				parser.WriteFile(path, data);
+			}
+			else
+			{
+				var directValue = data["CheckSaveState"]["altbtn"] = "0";
+				parser.WriteFile(path, data);
+			}
+		}
+
+		public void readUserSettingsaltBtn(CheckBox check)
+		{
+			var parser = new FileIniDataParser();
+			IniData data = parser.ReadFile(path);
+			var directValue = data["CheckSaveState"]["altbtn"];
+			int trueValue = Convert.ToInt32(directValue);
+			// contains "1" or "0"
+			if (trueValue == 1)
+			{
+				check.Checked = true;
+			}
+			else
+			{
+				check.Checked = false;
+			}
+		}
+
+		private void Form1_Load(object sender, EventArgs e)
+		{
+
 		}
 	}
 }
