@@ -47,7 +47,6 @@
 			this.urlBox.ReadOnly = true;
 			this.urlBox.Size = new System.Drawing.Size(501, 20);
 			this.urlBox.TabIndex = 0;
-			this.urlBox.TextChanged += new System.EventHandler(this.urlBox_TextChanged);
 			// 
 			// label1
 			// 
@@ -57,7 +56,6 @@
 			this.label1.Size = new System.Drawing.Size(104, 13);
 			this.label1.TabIndex = 1;
 			this.label1.Text = "Dark Souls Directory";
-			this.label1.Click += new System.EventHandler(this.label1_Click);
 			// 
 			// selPath
 			// 
@@ -149,7 +147,7 @@
 
 		#endregion
 
-		private System.Windows.Forms.TextBox urlBox;
+		public System.Windows.Forms.TextBox urlBox;
 		private System.Windows.Forms.Label label1;
 		private System.Windows.Forms.Button selPath;
 		private System.Windows.Forms.Button btnInstall;
