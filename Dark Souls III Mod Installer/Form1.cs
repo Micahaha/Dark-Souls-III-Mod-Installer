@@ -30,10 +30,12 @@ namespace Dark_Souls_III_Mod_Installer
         OpenFileDialog fbd = new OpenFileDialog();
 
 
-		public void setFolderPath(string newFolderPath) 
+		public string fileBox
 		{
-		
-			FOLDER_PATH = newFolderPath;
+
+			get { return urlBox.Text; }
+			set { urlBox.Text = value; }
+
 		}
 
 		public Form1()
@@ -48,7 +50,7 @@ namespace Dark_Souls_III_Mod_Installer
 
 			else 
 			{
-				folderOperations.readDirectory(SETTINGS_PATH);
+				folderOperations.readDirectory(SETTINGS_PATH,fileBox);
 
 			}
 
@@ -59,9 +61,9 @@ namespace Dark_Souls_III_Mod_Installer
 				enOnlinebtn.Enabled = true;
 				btnInstall.Enabled = true;
 				checkBox1.Enabled = true;
-				folderOperations.readUserSettings(enOnlinebtn);
-				readUserSettingsaltBtn(altSaveBtn);
-				readUserSettingsDisableBtn(checkBox1);
+				folderOperations.readUserSettings(enOnlinebtn,SETTINGS_PATH);
+				folderOperations.readUserSettingsaltBtn(altSaveBtn, SETTINGS_PATH);
+				folderOperations.readUserSettingsDisableBtn(checkBox1, SETTINGS_PATH);
 			}
 		}
 
@@ -76,25 +78,28 @@ namespace Dark_Souls_III_Mod_Installer
                     FOLDER_PATH = fbd.FileName;
 
 					PARENT_DIRECTORY = Directory.GetParent(FOLDER_PATH).FullName;
-					if (FOLDER_PATH.Contains("DarkSoulsIII.exe") && !SETTINGS_PATH.Contains(null))
+					if (FOLDER_PATH.Contains("DarkSoulsIII.exe"))
 					{
 						MessageBox.Show("DARK SOULS 3 DIRECTORY SELECTED!");
 						btnInstall.Enabled = true;
-					folderOperations.fileBox = PARENT_DIRECTORY;
+						fileBox = PARENT_DIRECTORY;
 						checkBox1.Enabled = true;
-						folderOperations.readUserSettings(enOnlinebtn);
-						readUserSettingsaltBtn(altSaveBtn);
-						readUserSettingsDisableBtn(checkBox1);
-						folderOperations.savedDirectory(FOLDER_PATH);
+						folderOperations.readUserSettings(enOnlinebtn, SETTINGS_PATH);
+						folderOperations.readUserSettingsaltBtn(altSaveBtn, SETTINGS_PATH);
+						folderOperations.readUserSettingsDisableBtn(checkBox1, SETTINGS_PATH);
+						folderOperations.savedDirectory(FOLDER_PATH, SETTINGS_PATH);
 					}
-					else
+					else 
 					{
-						FOLDER_PATH = null;
-						btnInstall.Enabled = false;
-						MessageBox.Show("DARK SOULS 3 DIRECTORY NOT SELECTED, PLEASE TRY AGAIN!");
+						MessageBox.Show("Wrong file, Please select your DarkSoulsIII.exe");
 					}
 				}
-				string modEngine = Path.Combine(FOLDER_PATH + @"\modengine.ini");
+
+
+				String modEngine = Path.Combine(PARENT_DIRECTORY + @"\modengine.ini");
+
+
+
 				var parser = new FileIniDataParser();
 				IniData data = parser.ReadFile(modEngine);
 				var directValue = data["files"]["modOverrideDirectory"];
@@ -105,9 +110,10 @@ namespace Dark_Souls_III_Mod_Installer
 					parser.WriteFile(modEngine, data);
 				}
 			}
-			catch (Exception)
+			catch (Exception catchThis)
 			{
 				MessageBox.Show("Nothing was selected. Please choose your DarkSouls3.exe");
+				Console.WriteLine(catchThis.Message);
 			}
 		}
 
@@ -151,7 +157,7 @@ namespace Dark_Souls_III_Mod_Installer
 		}
 		public void checkBox1_CheckedChanged(object sender, EventArgs e)
 		{
-			string modEngine = Path.Combine(FOLDER_PATH + @"\modengine.ini");
+			string modEngine = Path.Combine(PARENT_DIRECTORY + @"\modengine.ini");
 			var parser = new FileIniDataParser();
 			IniData data = parser.ReadFile(modEngine);
 			if (FOLDER_PATH.Contains("Game"))
@@ -173,8 +179,8 @@ namespace Dark_Souls_III_Mod_Installer
 	
 		private void EnOnlineBtn_CheckedChanged(object sender, EventArgs e)
 		{
-			
-			string modEngine = Path.Combine(FOLDER_PATH + @"\modengine.ini");
+
+			string modEngine = Path.Combine(PARENT_DIRECTORY + @"\modengine.ini");
 			var parser = new FileIniDataParser();
 			IniData data = parser.ReadFile(modEngine);
 			
@@ -197,7 +203,7 @@ namespace Dark_Souls_III_Mod_Installer
 		private void altSaveBtn_CheckedChanged(object sender, EventArgs e)
 		{
 
-			string modEngine = Path.Combine(FOLDER_PATH + @"\modengine.ini");
+			string modEngine = Path.Combine(PARENT_DIRECTORY + @"\modengine.ini");
 			var parser = new FileIniDataParser();
 			IniData data = parser.ReadFile(modEngine);
 			if (FOLDER_PATH.Contains("Game"))
@@ -237,101 +243,20 @@ namespace Dark_Souls_III_Mod_Installer
 
 		private void savebtn_Click(object sender, EventArgs e)
 		{
-			SaveUserSettingsaltbtn(altSaveBtn);
-			SaveUserSettingsDisablebtn(checkBox1);
-			SaveUserSettings(enOnlinebtn);
-			MessageBox.Show("Options saved");
-		}
-		public void savedDirectory(string filePath) 
-		{
-			DirectoryInfo parent = Directory.GetParent(filePath);
-			string parentDir = Convert.ToString(parent);
-			var parser = new FileIniDataParser();
-			IniData data = parser.ReadFile(SETTINGS_PATH);
-			var directValue = data["files"]["DS3Dir"] = parentDir;
-			parser.WriteFile(SETTINGS_PATH, data);
+			folderOperations.SaveUserSettingsaltbtn(altSaveBtn, SETTINGS_PATH);
+			folderOperations.SaveUserSettingsDisablebtn(checkBox1,SETTINGS_PATH);
 
+			try
+			{
+				SaveUserSettings(enOnlinebtn);
+				MessageBox.Show("Options saved");
+			}
+			catch (Exception ex) 
+			{
+				Console.WriteLine(ex.Message);
+				MessageBox.Show("Error  saving options, Please try again");
+			}
+			
 		}
-		
-	
-		public void SaveUserSettingsDisablebtn(CheckBox checker)
-		{
-
-			if (!File.Exists(SETTINGS_PATH))
-			{
-				File.Create(SETTINGS_PATH);
-			}
-			var parser = new FileIniDataParser();
-			IniData data = parser.ReadFile(SETTINGS_PATH);
-			if (checker.Checked)
-			{
-				var directValue = data["CheckSaveState"]["disablemods"] = "1";
-				parser.WriteFile(SETTINGS_PATH, data);
-			}
-			else
-			{
-				var directValue = data["CheckSaveState"]["disablemods"] = "0";
-				parser.WriteFile(SETTINGS_PATH, data);
-			}
-		}
-
-		public void readUserSettingsDisableBtn(CheckBox check)
-		{
-			var parser = new FileIniDataParser();
-			IniData data = parser.ReadFile(SETTINGS_PATH);
-			var directValue = data["CheckSaveState"]["disablemods"];
-			int trueValue = Convert.ToInt32(directValue);
-			// contains "1" or "0"
-			if (trueValue == 1)
-			{
-				check.Checked = true;
-			}
-			else
-			{
-				check.Checked = false;
-			}
-		}
-		public void SaveUserSettingsaltbtn(CheckBox checker)
-		{
-
-			if (!File.Exists(SETTINGS_PATH))
-			{
-				File.Create(SETTINGS_PATH);
-			}
-			var parser = new FileIniDataParser();
-			IniData data = parser.ReadFile(SETTINGS_PATH);
-			if (checker.Checked)
-			{
-				var directValue = data["CheckSaveState"]["altbtn"] = "1";
-				parser.WriteFile(SETTINGS_PATH, data);
-			}
-			else
-			{
-				var directValue = data["CheckSaveState"]["altbtn"] = "0";
-				parser.WriteFile(SETTINGS_PATH, data);
-			}
-		}
-
-		public void readUserSettingsaltBtn(CheckBox check)
-		{
-			var parser = new FileIniDataParser();
-			IniData data = parser.ReadFile(SETTINGS_PATH);
-			var directValue = data["CheckSaveState"]["altbtn"];
-			int trueValue = Convert.ToInt32(directValue);
-			// contains "1" or "0"
-			if (trueValue == 1)
-			{
-				check.Checked = true;
-			}
-			else
-			{
-				check.Checked = false;
-			}
-		}
-
-		private void Form1_Load(object sender, EventArgs e)
-		{
-
-		}
-	}
+    }
 }
