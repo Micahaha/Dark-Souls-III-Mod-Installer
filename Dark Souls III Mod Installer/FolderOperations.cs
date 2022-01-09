@@ -13,11 +13,14 @@ namespace Dark_Souls_III_Mod_Installer
 
 	 class FolderOperations
 	{
-		public void savedDirectory(string filePath, string settings)
+		private FileIniDataParser parser = new FileIniDataParser();
+		private IniData data;
+
+
+        public void savedDirectory(string filePath, string settings)
 		{
 			DirectoryInfo parent = Directory.GetParent(filePath);
 			string parentDir = Convert.ToString(parent);
-			var parser = new FileIniDataParser();
 			IniData data = parser.ReadFile(settings);
 			var directValue = data["files"]["DS3Dir"] = parentDir;
 			parser.WriteFile(settings, data);
@@ -26,8 +29,8 @@ namespace Dark_Souls_III_Mod_Installer
 
 		public void readDirectory(string path, string fileBox)
 		{
-			var parser = new FileIniDataParser();
-			IniData data = parser.ReadFile(path);
+			
+			data = parser.ReadFile(path);
 			var directValue = data["files"]["DS3Dir"];
 			if (!fileBox.Contains("Game"))
 			{
@@ -37,12 +40,10 @@ namespace Dark_Souls_III_Mod_Installer
 
 		public void readUserSettings(CheckBox check, string settings) 
 		{
-			var parser = new FileIniDataParser();
-			IniData data = parser.ReadFile(filePath: settings);
+			data = parser.ReadFile(filePath: settings);
 			var directValue = data["CheckSaveState"]["checked"];
-			int trueValue = Convert.ToInt32(directValue);
 			// contains "1" or "0"
-			if (trueValue == 1)
+			if (directValue.Equals("1"))
 			{
 				check.Checked = true;
 			}
@@ -71,8 +72,7 @@ namespace Dark_Souls_III_Mod_Installer
 			{
 				File.Create(settings);
 			}
-			var parser = new FileIniDataParser();
-			IniData data = parser.ReadFile(settings);
+			data = parser.ReadFile(settings);
 			if (checker.Checked)
 			{
 				var directValue = data["CheckSaveState"]["disablemods"] = "1";
@@ -87,12 +87,10 @@ namespace Dark_Souls_III_Mod_Installer
 
 		public void readUserSettingsDisableBtn(CheckBox check, string settings)
 		{
-			var parser = new FileIniDataParser();
-			IniData data = parser.ReadFile(settings);
+			data = parser.ReadFile(settings);
 			var directValue = data["CheckSaveState"]["disablemods"];
-			int trueValue = Convert.ToInt32(directValue);
 			// contains "1" or "0"
-			if (trueValue == 1)
+			if (directValue.Equals("1"))
 			{
 				check.Checked = true;
 			}
@@ -108,8 +106,7 @@ namespace Dark_Souls_III_Mod_Installer
 			{
 				File.Create(settings);
 			}
-			var parser = new FileIniDataParser();
-			IniData data = parser.ReadFile(settings);
+			data = parser.ReadFile(settings);
 			if (checker.Checked)
 			{
 				var directValue = data["CheckSaveState"]["altbtn"] = "1";
@@ -124,12 +121,11 @@ namespace Dark_Souls_III_Mod_Installer
 
 		public void readUserSettingsaltBtn(CheckBox check,string settings)
 		{
-			var parser = new FileIniDataParser();
-			IniData data = parser.ReadFile(settings);
+
+			data = parser.ReadFile(filePath: settings);
 			var directValue = data["CheckSaveState"]["altbtn"];
-			int trueValue = Convert.ToInt32(directValue);
 			// contains "1" or "0"
-			if (trueValue == 1)
+			if (directValue.Equals("1"))
 			{
 				check.Checked = true;
 			}
@@ -138,13 +134,5 @@ namespace Dark_Souls_III_Mod_Installer
 				check.Checked = false;
 			}
 		}
-
-		public void setFolderPath(string FOLDER_PATH, string newFolderPath)
-		{
-
-			FOLDER_PATH = newFolderPath;
-		}
-
-
 	}
 }

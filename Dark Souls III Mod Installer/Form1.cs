@@ -31,20 +31,9 @@ namespace Dark_Souls_III_Mod_Installer
         OpenFileDialog fbd = new OpenFileDialog();
 
 
-		public string fileBox
-		{
-
-			get { return urlBox.Text; }
-			set { urlBox.Text = value; }
-
-		}
-
-
-
-
-
 		public Form1()
 		{
+			Console.WriteLine(SETTINGS_PATH);
 			InitializeComponent();
 			MessageBox.Show("Thanks for installing, This is my first C# Project so please leave some constructive criticism!");
 
@@ -54,22 +43,20 @@ namespace Dark_Souls_III_Mod_Installer
 			}
 			else 
 			{
-				folderOperations.readDirectory(SETTINGS_PATH, fileBox);
+				folderOperations.readDirectory(SETTINGS_PATH, urlBox.Text);
 			}
 
-		/*	if (!File.Exists(PARENT_DIRECTORY))
-			{
-				modEngine = Path.Combine(PARENT_DIRECTORY + @"\modengine.ini");
-				FileStream myFile = File.Create(modEngine);
-			}
-		*/
 			checkBox1.Enabled = false;
-			
+			enOnlinebtn.Enabled = false;
+			btnInstall.Enabled = false;
+			altSaveBtn.Enabled = false;
+
 			if (urlBox.Text.Contains("Game"))
 			{
-				enOnlinebtn.Enabled = true;
-				btnInstall.Enabled = true;
-				checkBox1.Enabled = true;
+			
+				
+
+
 				folderOperations.readUserSettings(enOnlinebtn,SETTINGS_PATH);
 				folderOperations.readUserSettingsaltBtn(altSaveBtn, SETTINGS_PATH);
 				folderOperations.readUserSettingsDisableBtn(checkBox1, SETTINGS_PATH);
@@ -78,64 +65,54 @@ namespace Dark_Souls_III_Mod_Installer
 
 		private void selPath_Click(object sender, EventArgs e)
 		{
-
 			try
 			{
-				
 				if (fbd.ShowDialog() == DialogResult.OK)
 				{
 
-                    FOLDER_PATH = fbd.FileName;
+					FOLDER_PATH = fbd.FileName; // File path saved into variable
+					PARENT_DIRECTORY = Directory.GetParent(FOLDER_PATH).FullName; // PARENT_DIRECTORY is path of DarkSouls folder
 
-					PARENT_DIRECTORY = Directory.GetParent(FOLDER_PATH).FullName;
-
-					if (FOLDER_PATH.Contains("DarkSoulsIII.exe"))
+					if (FOLDER_PATH.Contains("DarkSoulsIII.exe")) // if contains DarkSoulsIII.exe
 					{
-						MessageBox.Show("DARK SOULS 3 DIRECTORY SELECTED!");
-						btnInstall.Enabled = true;
-						fileBox = PARENT_DIRECTORY;
 						checkBox1.Enabled = true;
-						folderOperations.readUserSettings(enOnlinebtn, SETTINGS_PATH);
-						folderOperations.readUserSettingsaltBtn(altSaveBtn, SETTINGS_PATH);
-						folderOperations.readUserSettingsDisableBtn(checkBox1, SETTINGS_PATH);
-						folderOperations.savedDirectory(FOLDER_PATH, SETTINGS_PATH);
+						enOnlinebtn.Enabled = true;
+						btnInstall.Enabled = true;
+						altSaveBtn.Enabled = true;
 
-						modEngine = Path.Combine(PARENT_DIRECTORY + @"\\modengine.ini");
+						MessageBox.Show("DARK SOULS 3 DIRECTORY SELECTED!"); 
+						urlBox.Text = PARENT_DIRECTORY; // change the urlbox text to the directoy of DarkSoulsIII
+
+						folderOperations.readUserSettings(enOnlinebtn, SETTINGS_PATH); // read settings
+					//	folderOperations.readUserSettingsaltBtn(altSaveBtn, SETTINGS_PATH);
+					//	folderOperations.readUserSettingsDisableBtn(checkBox1, SETTINGS_PATH);
+				    //   folderOperations.savedDirectory(FOLDER_PATH, SETTINGS_PATH);
+					
+						modEngine = Path.Combine(PARENT_DIRECTORY + @"\modengine.ini");
 
 
 						// Begin parsing modEngine file
 						data = parser.ReadFile(modEngine);
-
-						foreach (SectionData section in data.Sections) 
+						foreach (SectionData section in data.Sections)
 						{
 
 							Console.WriteLine("[" + section.SectionName + "]");
 						}
 					}
-					else 
-					{
-						MessageBox.Show("Wrong file, Please select your DarkSoulsIII.exe");
-					}
 				}
-
-
-			/*	string directValue = data["files"]["modOverrideDirectory"];
-				if (!directValue.Contains(@"""\mod"""))
-				{
-					directValue = data["files"]["modOverrideDirectory"] = @"""\mod""";
-					parser.WriteFile(modEngine, data);
-				}
-			*/
-
 			}
-			
+
+
 
 			catch (Exception catchThis)
 			{
-				MessageBox.Show("Nothing was selected. Please choose your DarkSouls3.exe");
+				Console.WriteLine("Nothing was selected. Please choose your DarkSouls3.exe");
 				Console.WriteLine(catchThis.Message);
 			}
-		}
+
+
+			}
+		
 
 		private void btnInstall_Click(object sender, EventArgs e)
 		{
